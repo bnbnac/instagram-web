@@ -1,12 +1,10 @@
-import { Dispatch, SetStateAction } from "react";
-interface IsLoggedInProps {
-  setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
-}
-function Home({ setIsLoggedIn }: IsLoggedInProps) {
+import { isLoggedInVar } from "../apollo";
+
+function Home() {
   return (
     <div>
       <h1>Home</h1>
-      <button onClick={() => setIsLoggedIn(false)}>logout now</button>
+      <button onClick={() => isLoggedInVar(false)}>logout now</button>
     </div>
   );
 }
