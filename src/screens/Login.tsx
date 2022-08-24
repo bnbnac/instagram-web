@@ -13,11 +13,11 @@ import FormBox from "../components/auth/FormBox";
 import BottomBox from "../components/auth/BottomBox";
 import PageTitle from "../components/PageTitle";
 import { useForm } from "react-hook-form";
-import FromError from "../components/auth/FomError";
-import { gql, useMutation } from "@apollo/client";
+import FormError from "../components/auth/FormError";
+import { gql } from "@apollo/client";
 import { logUserIn } from "../apollo";
 import { useLocation } from "react-router-dom";
-import { LoginResult } from "../generated/graphql";
+import { LoginMutation, useLoginMutation } from "../generated/graphql";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -37,7 +37,8 @@ interface FormData {
   result: string;
 }
 
-const LOGIN_MUTATION = gql`
+// for code gen?
+gql`
   mutation login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
       ok
@@ -52,33 +53,19 @@ function Login() {
   const {
     register,
     handleSubmit,
-    formState,
     setError,
     clearErrors,
     getValues,
+    formState: { errors, isValid },
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
-      username: location?.state?.username || "",
-      password: location?.state?.password || "",
+      username: location?.state?.username,
+      password: location?.state?.password,
     },
   });
-  const onCompleted = (data: any) => {
-    const {
-      login: { ok, error, token },
-    } = data;
-    if (!ok) {
-      setError("result", {
-        message: error,
-      });
-    } else if (token) {
-      logUserIn(token);
-    }
-  };
-  const [login, { loading }] = useMutation(LOGIN_MUTATION, {
-    onCompleted,
-  });
-  const onSubmitValid = (data: any) => {
+
+  const onSubmitValid = () => {
     if (loading) {
       return;
     }
@@ -90,6 +77,17 @@ function Login() {
       },
     });
   };
+  const [login, { loading }] = useLoginMutation({
+    onCompleted: ({ login: { error, token } }: LoginMutation) => {
+      if (error) {
+        return setError("result", {
+          message: error,
+        });
+      } else if (token) {
+        logUserIn(token);
+      }
+    },
+  });
   const clearLoginError = () => clearErrors("result");
 
   return (
@@ -112,25 +110,25 @@ function Login() {
             name="username"
             type="text"
             placeholder="Username"
-            hasError={Boolean(formState.errors?.username?.message)}
+            hasError={Boolean(errors?.username?.message)}
             {...(onchange = clearLoginError)}
           />
-          <FromError message={formState.errors?.username?.message} />
+          <FormError message={errors?.username?.message} />
           <Input
             {...register("password", { required: "password is required" })}
             name="password"
             type="password"
             placeholder="Password"
-            hasError={Boolean(formState.errors?.password?.message)}
+            hasError={Boolean(errors?.password?.message)}
             {...(onchange = clearLoginError)}
           />
-          <FromError message={formState.errors?.password?.message} />
+          <FormError message={errors?.password?.message} />
           <Button
             type="submit"
             value={loading ? "Loading..." : "Log in"}
-            disabled={!formState.isValid || loading}
+            disabled={!isValid || loading}
           />
-          <FromError message={formState.errors?.result?.message} />
+          <FormError message={errors?.result?.message} />
         </form>
         <Separator text="OR" />
         <FacebookLogin>

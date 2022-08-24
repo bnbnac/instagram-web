@@ -11,7 +11,12 @@ import styled from "styled-components";
 import { FatLink } from "../components/shared";
 import PageTitle from "../components/PageTitle";
 import { useForm } from "react-hook-form";
-import { gql, useMutation } from "@apollo/client";
+import { gql } from "@apollo/client";
+import {
+  CreateAccountMutation,
+  useCreateAccountMutation,
+} from "../generated/graphql";
+import FormError from "../components/auth/FormError";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -24,7 +29,7 @@ const Subtitle = styled(FatLink)`
   margin-top: 10px;
 `;
 
-const CREATE_ACCOUNT_MUTATION = gql`
+gql`
   mutation createAccount(
     $firstName: String!
     $lastName: String
@@ -47,35 +52,50 @@ const CREATE_ACCOUNT_MUTATION = gql`
 
 function SignUp() {
   const navigate: any = useNavigate();
-  const { register, handleSubmit, setError, getValues, formState } = useForm();
-  const onCompleted = (data: any) => {
-    const { username, password } = getValues();
-    const {
-      createAccount: { ok, error },
-    } = data;
-    if (!ok) {
-      setError("result", {
-        message: error,
-      });
-    }
-    navigate(routes.Home, {
-      state: { message: "Account created. Please log in.", username, password },
-    });
-  };
+  const {
+    register,
+    handleSubmit,
+    setError,
+    getValues,
+    formState: { errors, isValid },
+    clearErrors,
+  } = useForm({ mode: "onChange" });
 
-  const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
-    onCompleted,
-  });
-  const onSubmitValid = (data: any) => {
+  const onSubmitValid = () => {
     if (loading) {
       return;
     }
+    const { email, firstName, lastName, username, password } = getValues();
     createAccount({
       variables: {
-        ...data,
+        email,
+        firstName,
+        lastName,
+        username,
+        password,
       },
     });
   };
+
+  const clearSignUpError = () => clearErrors("result");
+
+  const [createAccount, { loading }] = useCreateAccountMutation({
+    onCompleted: ({ createAccount: { error } }: CreateAccountMutation) => {
+      if (error) {
+        return setError("result", {
+          message: error,
+        });
+      }
+      const { username, password } = getValues();
+      navigate(routes.Home, {
+        state: {
+          message: "Account created. Please log in.",
+          username,
+          password,
+        },
+      });
+    },
+  });
 
   return (
     <AuthLayout>
@@ -89,11 +109,16 @@ function SignUp() {
         </HeaderContainer>
         <form onSubmit={handleSubmit(onSubmitValid)}>
           <Input
-            {...register("firstName", { required: "First Name is required" })}
+            {...register("firstName", {
+              required: "First Name is required",
+            })}
             name="firstName"
             type="text"
             placeholder="First Name"
+            hasError={Boolean(errors?.firstName?.message)}
+            {...(onchange = clearSignUpError)}
           />
+          <FormError message={errors?.firstName?.message} />
           <Input
             {...register("lastName")}
             name="lastName"
@@ -105,25 +130,40 @@ function SignUp() {
             name="email"
             type="text"
             placeholder="Email"
+            hasError={Boolean(errors?.email?.message)}
+            {...(onchange = clearSignUpError)}
           />
+          <FormError message={errors?.email?.message} />
           <Input
-            {...register("username", { required: "Username is required" })}
+            {...register("username", {
+              required: "Username is required",
+              minLength: {
+                value: 5,
+                message: "username should be longer than 5 chars",
+              },
+            })}
             name="username"
             type="text"
             placeholder="Username"
+            hasError={Boolean(errors?.username?.message)}
+            {...(onchange = clearSignUpError)}
           />
+          <FormError message={errors?.username?.message} />
           <Input
             {...register("password", { required: "Password is required" })}
             name="password"
             type="password"
             placeholder="Password"
+            hasError={Boolean(errors?.password?.message)}
+            {...(onchange = clearSignUpError)}
           />
+          <FormError message={errors?.password?.message} />
           <Button
             type="submit"
             value={loading ? "Loading..." : "Sign up"}
-            //disabled={!formState.isValid || loading}
-            // error show like 5 chars
+            disabled={!isValid || loading}
           />
+          <FormError message={errors?.result?.message} />
         </form>
       </FormBox>
       <BottomBox cta="Have an account?" link={routes.Home} linktext="Log in" />
@@ -132,5 +172,3 @@ function SignUp() {
 }
 
 export default SignUp;
-// codegen config file
-// "codegen": "graphql-codegen --config codegen.yml"
