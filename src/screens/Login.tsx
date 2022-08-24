@@ -14,6 +14,10 @@ import BottomBox from "../components/auth/BottomBox";
 import PageTitle from "../components/PageTitle";
 import { useForm } from "react-hook-form";
 import FromError from "../components/auth/FomError";
+import { gql, useMutation } from "@apollo/client";
+import { logUserIn } from "../apollo";
+import { useLocation } from "react-router-dom";
+import { LoginResult } from "../generated/graphql";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -23,18 +27,70 @@ const FacebookLogin = styled.div`
   }
 `;
 
+const Notification = styled.div`
+  color: #2ecc71;
+`;
+
 interface FormData {
   username: string;
   password: string;
+  result: string;
 }
 
+const LOGIN_MUTATION = gql`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      ok
+      token
+      error
+    }
+  }
+`;
+
 function Login() {
-  const { register, handleSubmit, formState } = useForm<FormData>({
+  const location: any = useLocation();
+  const {
+    register,
+    handleSubmit,
+    formState,
+    setError,
+    clearErrors,
+    getValues,
+  } = useForm<FormData>({
     mode: "onChange",
+    defaultValues: {
+      username: location?.state?.username || "",
+      password: location?.state?.password || "",
+    },
+  });
+  const onCompleted = (data: any) => {
+    const {
+      login: { ok, error, token },
+    } = data;
+    if (!ok) {
+      setError("result", {
+        message: error,
+      });
+    } else if (token) {
+      logUserIn(token);
+    }
+  };
+  const [login, { loading }] = useMutation(LOGIN_MUTATION, {
+    onCompleted,
   });
   const onSubmitValid = (data: any) => {
-    // console.log(data);
+    if (loading) {
+      return;
+    }
+    const { username, password } = getValues();
+    login({
+      variables: {
+        username,
+        password,
+      },
+    });
   };
+  const clearLoginError = () => clearErrors("result");
 
   return (
     <AuthLayout>
@@ -43,6 +99,7 @@ function Login() {
         <div>
           <FontAwesomeIcon icon={faInstagram} size="3x" />
         </div>
+        <Notification> {location?.state?.message}</Notification>
         <form onSubmit={handleSubmit(onSubmitValid)}>
           <Input
             {...register("username", {
@@ -56,6 +113,7 @@ function Login() {
             type="text"
             placeholder="Username"
             hasError={Boolean(formState.errors?.username?.message)}
+            {...(onchange = clearLoginError)}
           />
           <FromError message={formState.errors?.username?.message} />
           <Input
@@ -64,9 +122,15 @@ function Login() {
             type="password"
             placeholder="Password"
             hasError={Boolean(formState.errors?.password?.message)}
+            {...(onchange = clearLoginError)}
           />
           <FromError message={formState.errors?.password?.message} />
-          <Button type="submit" value="Log in" disabled={!formState.isValid} />
+          <Button
+            type="submit"
+            value={loading ? "Loading..." : "Log in"}
+            disabled={!formState.isValid || loading}
+          />
+          <FromError message={formState.errors?.result?.message} />
         </form>
         <Separator text="OR" />
         <FacebookLogin>

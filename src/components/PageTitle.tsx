@@ -1,4 +1,4 @@
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { Helmet } from "react-helmet-async";
 
 type StringTitle = {
   title: string;
@@ -6,11 +6,9 @@ type StringTitle = {
 
 function PageTitle({ title }: StringTitle) {
   return (
-    <HelmetProvider>
-      <Helmet>
-        <title>{title} | Instagram</title>
-      </Helmet>
-    </HelmetProvider>
+    <Helmet>
+      <title>{title} | Instagram</title>
+    </Helmet>
   );
 }
 
