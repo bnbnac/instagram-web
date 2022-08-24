@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { logUserOut } from "../apollo";
 
 function Home() {
-  const navigate: any = useNavigate();
+  const navigate = useNavigate();
   return (
     <div>
       <h1>Welcome~~</h1>
