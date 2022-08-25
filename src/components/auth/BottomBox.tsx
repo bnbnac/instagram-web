@@ -2,6 +2,12 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { BaseBox } from "../shared";
 
+interface IBottomBox {
+  cta: string;
+  link: string;
+  linktext: string;
+}
+
 const SBottomBox = styled(BaseBox)`
   padding: 20px 0px;
   text-align: center;
@@ -12,7 +18,7 @@ const SBottomBox = styled(BaseBox)`
   }
 `;
 
-function BottomBox({ cta, link, linktext }: any) {
+function BottomBox({ cta, link, linktext }: IBottomBox) {
   return (
     <SBottomBox>
       <span>{cta}</span>

@@ -31,7 +31,7 @@ const Notification = styled.div`
   color: #2ecc71;
 `;
 
-interface FormData {
+interface IForm {
   username: string;
   password: string;
   result: string;
@@ -57,7 +57,7 @@ function Login() {
     clearErrors,
     getValues,
     formState: { errors, isValid },
-  } = useForm<FormData>({
+  } = useForm<IForm>({
     mode: "onChange",
     defaultValues: {
       username: location?.state?.username,
@@ -113,7 +113,7 @@ function Login() {
             hasError={Boolean(errors?.username?.message)}
             {...(onchange = clearLoginError)}
           />
-          <FormError message={errors?.username?.message} />
+          <FormError error={errors?.username?.message} />
           <Input
             {...register("password", { required: "password is required" })}
             name="password"
@@ -122,13 +122,13 @@ function Login() {
             hasError={Boolean(errors?.password?.message)}
             {...(onchange = clearLoginError)}
           />
-          <FormError message={errors?.password?.message} />
+          <FormError error={errors?.password?.message} />
           <Button
             type="submit"
             value={loading ? "Loading..." : "Log in"}
             disabled={!isValid || loading}
           />
-          <FormError message={errors?.result?.message} />
+          <FormError error={errors?.result?.message} />
         </form>
         <Separator text="OR" />
         <FacebookLogin>

@@ -1,10 +1,10 @@
 import { Helmet } from "react-helmet-async";
 
-type StringTitle = {
+interface IPageTitle {
   title: string;
-};
+}
 
-function PageTitle({ title }: StringTitle) {
+function PageTitle({ title }: IPageTitle) {
   return (
     <Helmet>
       <title>{title} | Instagram</title>

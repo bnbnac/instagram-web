@@ -1,3 +1,4 @@
+import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import Header from "../Header";
 
@@ -8,7 +9,7 @@ const Content = styled.main`
   width: 100%;
 `;
 
-function Layout({ children }: any) {
+function Layout({ children }: PropsWithChildren) {
   return (
     <>
       <Header />

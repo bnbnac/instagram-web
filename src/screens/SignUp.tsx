@@ -18,6 +18,15 @@ import {
 } from "../generated/graphql";
 import FormError from "../components/auth/FormError";
 
+interface IForm {
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  result: string;
+}
+
 const HeaderContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -59,7 +68,7 @@ function SignUp() {
     getValues,
     formState: { errors, isValid },
     clearErrors,
-  } = useForm({ mode: "onChange" });
+  } = useForm<IForm>({ mode: "onChange" });
 
   const onSubmitValid = () => {
     if (loading) {
@@ -118,7 +127,7 @@ function SignUp() {
             hasError={Boolean(errors?.firstName?.message)}
             {...(onchange = clearSignUpError)}
           />
-          <FormError message={errors?.firstName?.message} />
+          <FormError error={errors?.firstName?.message} />
           <Input
             {...register("lastName")}
             name="lastName"
@@ -133,7 +142,7 @@ function SignUp() {
             hasError={Boolean(errors?.email?.message)}
             {...(onchange = clearSignUpError)}
           />
-          <FormError message={errors?.email?.message} />
+          <FormError error={errors?.email?.message} />
           <Input
             {...register("username", {
               required: "Username is required",
@@ -148,7 +157,7 @@ function SignUp() {
             hasError={Boolean(errors?.username?.message)}
             {...(onchange = clearSignUpError)}
           />
-          <FormError message={errors?.username?.message} />
+          <FormError error={errors?.username?.message} />
           <Input
             {...register("password", { required: "Password is required" })}
             name="password"
@@ -157,13 +166,13 @@ function SignUp() {
             hasError={Boolean(errors?.password?.message)}
             {...(onchange = clearSignUpError)}
           />
-          <FormError message={errors?.password?.message} />
+          <FormError error={errors?.password?.message} />
           <Button
             type="submit"
             value={loading ? "Loading..." : "Sign up"}
             disabled={!isValid || loading}
           />
-          <FormError message={errors?.result?.message} />
+          <FormError error={errors?.result?.message} />
         </form>
       </FormBox>
       <BottomBox cta="Have an account?" link={routes.Home} linktext="Log in" />

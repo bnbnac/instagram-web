@@ -4,7 +4,6 @@ import {
   InMemoryCache,
   makeVar,
 } from "@apollo/client";
-import routes from "./routes";
 import { setContext } from "@apollo/client/link/context";
 
 const TOKEN = "token";
@@ -16,10 +15,9 @@ export const logUserIn = (token: string) => {
   isLoggedInVar(true);
 };
 
-export const logUserOut = (navigate: any) => {
-  navigate(routes.Home, { replace: true });
+export const logUserOut = () => {
   localStorage.removeItem(TOKEN);
-  isLoggedInVar(false);
+  window.location.reload();
 };
 
 export const darkModeVar = makeVar(

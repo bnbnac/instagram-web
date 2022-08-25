@@ -1,3 +1,4 @@
+import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { BaseBox } from "../shared";
 
@@ -18,7 +19,7 @@ const Container = styled(BaseBox)`
   }
 `;
 
-function FormBox({ children }: any) {
+function FormBox({ children }: PropsWithChildren) {
   return <Container>{children}</Container>;
 }
 

@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
-interface IInputProps {
+interface IInput {
   hasError?: boolean;
 }
 
-const Input = styled.input<IInputProps>`
+const Input = styled.input<IInput>`
   width: 100%;
   border-radius: 3px;
   padding: 7px;
