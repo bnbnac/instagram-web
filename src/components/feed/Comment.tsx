@@ -1,14 +1,15 @@
 import styled from "styled-components";
 import { FatText } from "../shared";
-import sanitizeHtml from "sanitize-html";
+import { Link } from "react-router-dom";
+import React from "react";
 
 const CommentArea = styled.div``;
 
 const CommentCaption = styled.span`
   margin-left: 10px;
-  mark {
-    background-color: inherit;
+  a {
     color: ${(props) => props.theme.accent};
+    background-color: inherit;
     cursor: pointer;
     &: hover {
       text-decoration: underline;
@@ -25,20 +26,24 @@ export interface IComment {
 }
 
 function Comment({ user, payload }: IComment) {
-  const sanitizedPayload = sanitizeHtml(
-    payload?.replace(/#[[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/g, "<mark>$&</mark>") || "",
-    {
-      allowedTags: ["mark"],
-    }
-  );
   return (
     <CommentArea>
       <FatText>{user.username}</FatText>
-      <CommentCaption
-        dangerouslySetInnerHTML={{
-          __html: sanitizedPayload,
-        }}
-      />
+      <CommentCaption>
+        {payload?.split(" ").map((word, index) =>
+          /#[[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/g.test(word) ? (
+            <React.Fragment key={index}>
+              <Link to={`/hashtags/${word}`}>{word} </Link>
+            </React.Fragment>
+          ) : /@[[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/g.test(word) ? (
+            <React.Fragment key={index}>
+              <Link to={`/users/${word.replace("@", "")}`}>{word} </Link>
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={index}>{word} </React.Fragment>
+          )
+        )}
+      </CommentCaption>
     </CommentArea>
   );
 }
