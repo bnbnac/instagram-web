@@ -1,14 +1,10 @@
 import styled from "styled-components";
-import { FatText } from "../shared";
-import { IPhoto } from "./Photo";
+import Comment, { IComment } from "./Comment";
 
 const CommentsContainer = styled.div`
   margin-top: 20px;
 `;
-const CommentArea = styled.div``;
-const CommentCaption = styled.span`
-  margin-left: 10px;
-`;
+
 const CommentCount = styled.span`
   opacity: 0.7;
   margin: 10px 0px;
@@ -17,11 +13,7 @@ const CommentCount = styled.span`
   font-weight: 600;
 `;
 
-export interface IComments {
-  user: {
-    avatar?: string | null | undefined;
-    username: string | null | undefined;
-  };
+export interface IComments extends IComment {
   caption?: string | null | undefined;
   commentsNumber: number;
   comments: Array<{
@@ -37,20 +29,18 @@ export interface IComments {
 function Comments({ user, caption, commentsNumber, comments }: IComments) {
   return (
     <CommentsContainer>
-      <CommentArea>
-        <FatText>{user.username}</FatText>
-        <CommentCaption>{caption}</CommentCaption>
-      </CommentArea>
+      <Comment user={user} payload={caption} />
       <CommentCount>
         {commentsNumber === 1 ? "1 comment" : `${commentsNumber} comments`}
       </CommentCount>
       {comments?.map(
         (comment) =>
           comment && (
-            <CommentArea key={comment.id}>
-              <FatText>{comment.user.username}</FatText>
-              <CommentCaption>{comment.payload}</CommentCaption>
-            </CommentArea>
+            <Comment
+              key={comment.id}
+              user={comment.user}
+              payload={comment.payload}
+            />
           )
       )}
     </CommentsContainer>
