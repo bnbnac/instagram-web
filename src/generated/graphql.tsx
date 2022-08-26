@@ -194,7 +194,8 @@ export type MutationResponse = {
 export type Photo = {
   __typename?: 'Photo';
   caption?: Maybe<Scalars['String']>;
-  comments: Scalars['Int'];
+  comments: Array<Maybe<Comment>>;
+  commentsNumber: Scalars['Int'];
   createdAt: Scalars['String'];
   file: Scalars['String'];
   hashtags?: Maybe<Array<Maybe<Hashtag>>>;
@@ -342,6 +343,15 @@ export type SeeFollowingResult = {
   ok: Scalars['Boolean'];
 };
 
+export type ToggleLikeMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type ToggleLikeMutation = { __typename?: 'Mutation', toggleLike: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
+
+export type ToggleLikeOnPhotoFragment = { __typename?: 'Photo', isLiked: boolean, likes: number };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -352,7 +362,7 @@ export type SeeFeedQueryVariables = Exact<{
 }>;
 
 
-export type SeeFeedQuery = { __typename?: 'Query', seeFeed?: Array<{ __typename?: 'Photo', id: number, file: string, caption?: string | null, likes: number, comments: number, createdAt: string, isMine: boolean, isLiked: boolean, user: { __typename?: 'User', username: string, avatar?: string | null } } | null> | null };
+export type SeeFeedQuery = { __typename?: 'Query', seeFeed?: Array<{ __typename?: 'Photo', id: number, file: string, caption?: string | null, likes: number, commentsNumber: number, createdAt: string, isMine: boolean, isLiked: boolean, user: { __typename?: 'User', username: string, avatar?: string | null }, comments: Array<{ __typename?: 'Comment', id: number, payload: string, isMine: boolean, createdAt: string, user: { __typename?: 'User', username: string, avatar?: string | null } } | null> } | null> | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
@@ -373,7 +383,46 @@ export type CreateAccountMutationVariables = Exact<{
 
 export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'CreateAccountResult', ok: boolean, error?: string | null } };
 
+export const ToggleLikeOnPhotoFragmentDoc = gql`
+    fragment ToggleLikeOnPhoto on Photo {
+  isLiked
+  likes
+}
+    `;
+export const ToggleLikeDocument = gql`
+    mutation toggleLike($id: Int!) {
+  toggleLike(id: $id) {
+    ok
+    error
+  }
+}
+    `;
+export type ToggleLikeMutationFn = Apollo.MutationFunction<ToggleLikeMutation, ToggleLikeMutationVariables>;
 
+/**
+ * __useToggleLikeMutation__
+ *
+ * To run a mutation, you first call `useToggleLikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleLikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleLikeMutation, { data, loading, error }] = useToggleLikeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useToggleLikeMutation(baseOptions?: Apollo.MutationHookOptions<ToggleLikeMutation, ToggleLikeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleLikeMutation, ToggleLikeMutationVariables>(ToggleLikeDocument, options);
+      }
+export type ToggleLikeMutationHookResult = ReturnType<typeof useToggleLikeMutation>;
+export type ToggleLikeMutationResult = Apollo.MutationResult<ToggleLikeMutation>;
+export type ToggleLikeMutationOptions = Apollo.BaseMutationOptions<ToggleLikeMutation, ToggleLikeMutationVariables>;
 export const MeDocument = gql`
     query me {
   me {
@@ -420,7 +469,17 @@ export const SeeFeedDocument = gql`
     file
     caption
     likes
-    comments
+    commentsNumber
+    comments {
+      id
+      user {
+        username
+        avatar
+      }
+      payload
+      isMine
+      createdAt
+    }
     createdAt
     isMine
     isLiked

@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 import Photo from "../components/feed/Photo";
+import PageTitle from "../components/PageTitle";
 import { useSeeFeedQuery } from "../generated/graphql";
 
 gql`
@@ -13,7 +14,17 @@ gql`
       file
       caption
       likes
-      comments
+      commentsNumber
+      comments {
+        id
+        user {
+          username
+          avatar
+        }
+        payload
+        isMine
+        createdAt
+      }
       createdAt
       isMine
       isLiked
@@ -25,18 +36,9 @@ function Home() {
   const { data } = useSeeFeedQuery({ variables: { page: 1 } });
   return (
     <div>
+      <PageTitle title="Home" />
       {data?.seeFeed?.map(
-        (photo) =>
-          photo && (
-            <Photo
-              key={photo?.id}
-              id={photo?.id}
-              file={photo?.file}
-              isLiked={photo?.isLiked}
-              likes={photo?.likes}
-              user={photo?.user}
-            />
-          )
+        (photo) => photo && <Photo key={photo?.id} {...photo} />
       )}
     </div>
   );

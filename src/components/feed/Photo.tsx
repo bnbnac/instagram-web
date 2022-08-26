@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client";
 import {
   faBookmark,
   faComment,
@@ -7,8 +8,10 @@ import {
 import { faHeart as SolidHeart } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
+import { useToggleLikeMutation } from "../../generated/graphql";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
+import Comments, { IComments } from "./Comments";
 
 const PhotoContainer = styled.div`
   background-color: white;
@@ -48,6 +51,7 @@ const PhotoActions = styled.div`
 
 const PhotoAction = styled.div`
   margin-right: 10px;
+  cursor: pointer;
 `;
 
 const Likes = styled(FatText)`
@@ -55,18 +59,85 @@ const Likes = styled(FatText)`
   display: block;
 `;
 
-interface IPhoto {
+gql`
+  mutation toggleLike($id: Int!) {
+    toggleLike(id: $id) {
+      ok
+      error
+    }
+  }
+`;
+
+// interface IComment {
+//   id: number;
+//   user: {
+//     avatar?: string | null | undefined;
+//     username: string | null | undefined;
+//   };
+//   payload: string;
+//   isMine: boolean;
+//   createdAt: string;
+// }
+
+export interface IPhoto extends IComments {
   id: number;
   file: string;
   isLiked: boolean;
   likes: number;
-  user: {
-    avatar?: string | null | undefined;
-    username: string | null | undefined;
-  };
 }
 
-function Photo({ id, user, file, isLiked, likes }: IPhoto) {
+function Photo({
+  id,
+  user,
+  file,
+  isLiked,
+  likes,
+  caption,
+  commentsNumber,
+  comments,
+}: IPhoto) {
+  const updateToggleLike = (cache: any, result: any) => {
+    const {
+      data: {
+        toggleLike: { ok },
+      },
+    } = result;
+    // Any changes you make to cached data with writeFragment are not pushed to your GraphQL server. If you reload your environment, these changes will disappear.
+    // But
+    // When a mutation's response is insufficient to update all modified fields in your cache (such as certain list fields), you can define an update function to apply manual changes to your cached data after a mutation.
+    // These methods enable you to execute GraphQL operations on the cache as though you're interacting with a GraphQL server.
+    if (ok) {
+      const fragmentId = `Photo:${id}`;
+      const fragment = gql`
+        fragment ToggleLikeOnPhoto on Photo {
+          isLiked
+          likes
+        }
+      `;
+      const readFrag = cache.readFragment({
+        id: fragmentId,
+        fragment,
+      });
+      if ("isLiked" in readFrag && "likes" in readFrag) {
+        const { isLiked, likes } = readFrag; // without this, we got { isLiked, likes } from props of Photo, that props are from seeFeed Query. with this, they are from CACHE(local). GETTING the data does not depend on the backend.
+        cache.writeFragment({
+          id: fragmentId,
+          fragment,
+          data: {
+            isLiked: !isLiked,
+            likes: isLiked ? likes - 1 : likes + 1,
+          },
+        });
+      }
+    }
+  };
+  const [toggleLike] = useToggleLikeMutation({
+    variables: {
+      id,
+    },
+    update: updateToggleLike,
+  });
+
   return (
     <PhotoContainer key={id}>
       <PhotoHeader>
@@ -77,7 +148,7 @@ function Photo({ id, user, file, isLiked, likes }: IPhoto) {
       <PhotoData>
         <PhotoActions>
           <div>
-            <PhotoAction>
+            <PhotoAction onClick={() => toggleLike()}>
               <FontAwesomeIcon
                 style={{ color: isLiked ? "tomato" : "inherit" }}
                 size={"2x"}
@@ -96,6 +167,12 @@ function Photo({ id, user, file, isLiked, likes }: IPhoto) {
           </div>
         </PhotoActions>
         <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
+        <Comments
+          user={user}
+          caption={caption}
+          commentsNumber={commentsNumber}
+          comments={comments}
+        />
       </PhotoData>
     </PhotoContainer>
   );
