@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql, useApolloClient } from "@apollo/client";
 import { faHeart, faComment } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useParams } from "react-router-dom";
@@ -136,6 +136,7 @@ const SEE_PROFILE_QUERY = gql`
 function Profile() {
   const { username } = useParams();
   const { data: userData } = useUser();
+  const client = useApolloClient();
 
   const { data, loading } = useSeeProfileQuery({
     variables: {
@@ -143,29 +144,78 @@ function Profile() {
       page: 1,
     },
   });
+
+  const unfollowUserUpdate = (cache: any, result: any) => {
+    const {
+      data: {
+        unfollowUser: { ok },
+      },
+    } = result;
+    if (!ok) {
+      return;
+    }
+    cache.modify({
+      id: `User:${username}`,
+      fields: {
+        isFollowing(prev: any) {
+          return false;
+        },
+        totalFollowers(prev: any) {
+          return prev - 1;
+        },
+      },
+    });
+    const myName = userData?.me?.username;
+    cache.modify({
+      id: `User:${myName}`,
+      fields: {
+        totalFollowing(prev: any) {
+          return prev - 1;
+        },
+      },
+    });
+  };
   const [unfollowUser] = useUnfollowUserMutation({
     variables: {
       username: username + "",
     },
-    refetchQueries: [
-      { query: SEE_PROFILE_QUERY, variables: { username, page: 1 } },
-      {
-        query: SEE_PROFILE_QUERY,
-        variables: { username: userData?.me?.username, page: 1 },
-      },
-    ],
+    update: unfollowUserUpdate,
   });
+
+  const followUserCompleted = (data: any) => {
+    const {
+      followUser: { ok },
+    } = data;
+    if (!ok) {
+      return;
+    }
+    const { cache } = client;
+    cache.modify({
+      id: `User:${username}`,
+      fields: {
+        isFollowing(prev: any) {
+          return true;
+        },
+        totalFollowers(prev: any) {
+          return prev + 1;
+        },
+      },
+    });
+    const myName = userData?.me?.username;
+    cache.modify({
+      id: `User:${myName}`,
+      fields: {
+        totalFollowing(prev: any) {
+          return prev + 1;
+        },
+      },
+    });
+  };
   const [followUser] = useFollowUserMutation({
     variables: {
       username: username + "",
     },
-    refetchQueries: [
-      { query: SEE_PROFILE_QUERY, variables: { username, page: 1 } },
-      {
-        query: SEE_PROFILE_QUERY,
-        variables: { username: userData?.me?.username, page: 1 },
-      },
-    ],
+    onCompleted: followUserCompleted,
   });
 
   const getButton = (seeProfile: any) => {
