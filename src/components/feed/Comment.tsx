@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { FatText } from "../shared";
 import { Link } from "react-router-dom";
 import React from "react";
+import { gql } from "@apollo/client";
+import { useDeleteCommentMutation } from "../../generated/graphql";
 
 const CommentArea = styled.div``;
 
@@ -17,18 +19,62 @@ const CommentCaption = styled.span`
   }
 `;
 
-export interface IComment {
-  user: {
-    avatar?: string | null | undefined;
-    username: string | null | undefined;
+interface IComment {
+  comment: {
+    __typename?: "Comment";
+    id: number;
+    payload: string;
+    isMine: boolean;
+    createdAt: string;
+    user: { __typename?: "User"; username: string; avatar?: string | null };
   };
-  payload?: string | null | undefined;
+  photoId: number;
 }
 
-function Comment({ user, payload }: IComment) {
+gql`
+  mutation deleteComment($id: Int!) {
+    deleteComment(id: $id) {
+      ok
+    }
+  }
+`;
+
+function Comment({ photoId, comment }: IComment) {
+  const { id, payload, isMine, user } = comment;
+  const updateDeleteComment = (cache: any, result: any) => {
+    const {
+      data: {
+        deleteComment: { ok },
+      },
+    } = result;
+    if (ok) {
+      // evict : POWER of apollo ver.3
+      cache.evict({ id: `Comment:${id}` });
+      // no need of fragment : no need to write cache just modify the number
+      cache.modify({
+        id: `Photo:${photoId}`,
+        fields: {
+          commentsNumber(prev: any) {
+            return prev - 1;
+          },
+        },
+      });
+    }
+  };
+  const [deleteCommentMutation] = useDeleteCommentMutation({
+    variables: {
+      id,
+    },
+    update: updateDeleteComment,
+  });
+  const onDeleteClick = () => {
+    deleteCommentMutation();
+  };
   return (
     <CommentArea>
-      <FatText>{user.username}</FatText>
+      <Link to={`/users/${user.username}`}>
+        <FatText>{user.username}</FatText>
+      </Link>
       <CommentCaption>
         {payload?.split(" ").map((word, index) =>
           /#[[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/g.test(word) ? (
@@ -44,6 +90,7 @@ function Comment({ user, payload }: IComment) {
           )
         )}
       </CommentCaption>
+      {isMine ? <button onClick={onDeleteClick}>X</button> : null}
     </CommentArea>
   );
 }

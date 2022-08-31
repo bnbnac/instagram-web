@@ -7,11 +7,12 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as SolidHeart } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useToggleLikeMutation } from "../../generated/graphql";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
-import Comments, { IComments } from "./Comments";
+import Comments from "./Comments";
 
 const PhotoContainer = styled.div`
   background-color: white;
@@ -79,22 +80,36 @@ gql`
 //   createdAt: string;
 // }
 
-export interface IPhoto extends IComments {
+interface IPhoto {
   id: number;
   file: string;
   isLiked: boolean;
   likes: number;
+  caption?: string | null;
+  commentsNumber: number;
+  comments: Array<{
+    __typename?: "Comment";
+    id: number;
+    payload: string;
+    isMine: boolean;
+    createdAt: string;
+    user: { __typename?: "User"; username: string; avatar?: string | null };
+  } | null>;
+  user: {
+    avatar?: string | null;
+    username: string;
+  };
 }
 
 function Photo({
   id,
-  user,
   file,
   isLiked,
   likes,
   caption,
   commentsNumber,
   comments,
+  user,
 }: IPhoto) {
   const updateToggleLike = (cache: any, result: any) => {
     const {
@@ -108,27 +123,20 @@ function Photo({
     // These methods enable you to execute GraphQL operations on the cache as though you're interacting with a GraphQL server.
     if (ok) {
       const fragmentId = `Photo:${id}`;
-      const fragment = gql`
-        fragment ToggleLikeOnPhoto on Photo {
-          isLiked
-          likes
-        }
-      `;
-      const readFrag = cache.readFragment({
+      cache.modify({
         id: fragmentId,
-        fragment,
-      });
-      if ("isLiked" in readFrag && "likes" in readFrag) {
-        const { isLiked, likes } = readFrag; // without this, we got { isLiked, likes } from props of Photo, that props are from seeFeed Query. with this, they are from CACHE(local). GETTING the data does not depend on the backend.
-        cache.writeFragment({
-          id: fragmentId,
-          fragment,
-          data: {
-            isLiked: !isLiked,
-            likes: isLiked ? likes - 1 : likes + 1,
+        fields: {
+          isLiked(previousValue: boolean) {
+            return !previousValue;
           },
-        });
-      }
+          likes(previousValue: number) {
+            if (isLiked) {
+              return previousValue - 1;
+            }
+            return previousValue + 1;
+          },
+        },
+      });
     }
   };
   const [toggleLike] = useToggleLikeMutation({
@@ -141,8 +149,12 @@ function Photo({
   return (
     <PhotoContainer key={id}>
       <PhotoHeader>
-        <Avatar lg url={user?.avatar} />
-        <Username>{user?.username}</Username>
+        <Link to={`/users/${user.username}`}>
+          <Avatar lg url={user.avatar} />
+        </Link>
+        <Link to={`/users/${user.username}`}>
+          <Username>{user.username}</Username>
+        </Link>
       </PhotoHeader>
       <PhotoFile src={file} />
       <PhotoData>
@@ -168,6 +180,7 @@ function Photo({
         </PhotoActions>
         <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
         <Comments
+          id={id}
           user={user}
           caption={caption}
           commentsNumber={commentsNumber}

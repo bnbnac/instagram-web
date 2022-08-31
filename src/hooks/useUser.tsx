@@ -6,6 +6,7 @@ import { useMeQuery } from "../generated/graphql";
 gql`
   query me {
     me {
+      id
       username
       avatar
     }

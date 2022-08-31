@@ -1,42 +1,34 @@
 import { gql } from "@apollo/client";
 import Photo from "../components/feed/Photo";
 import PageTitle from "../components/PageTitle";
+import { COMMENT_FRAGMENT, PHOTO_FRAGMENT } from "../fragment";
 import { useSeeFeedQuery } from "../generated/graphql";
 
 gql`
   query seeFeed($page: Int!) {
     seeFeed(page: $page) {
-      id
+      ...PhotoFragment
       user {
         username
         avatar
       }
-      file
       caption
-      likes
-      commentsNumber
       comments {
-        id
-        user {
-          username
-          avatar
-        }
-        payload
-        isMine
-        createdAt
+        ...CommentFragment
       }
       createdAt
       isMine
-      isLiked
     }
   }
+  ${PHOTO_FRAGMENT}
+  ${COMMENT_FRAGMENT}
 `;
 
 function Home() {
-  const { data } = useSeeFeedQuery({ variables: { page: 1 } });
+  const { data, loading } = useSeeFeedQuery({ variables: { page: 1 } });
   return (
     <div>
-      <PageTitle title="Home" />
+      <PageTitle title={loading ? "Loading..." : "Home"} />
       {data?.seeFeed?.map(
         (photo) => photo && <Photo key={photo?.id} {...photo} />
       )}
