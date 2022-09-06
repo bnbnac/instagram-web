@@ -178,7 +178,9 @@ function Photo({
             <FontAwesomeIcon size={"2x"} icon={faBookmark} />
           </div>
         </PhotoActions>
-        <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
+        <Likes onClick={() => {}}>
+          {likes === 1 ? "1 like" : `${likes} likes`}
+        </Likes>
         <Comments
           id={id}
           user={user}

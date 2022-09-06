@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Photo from "../components/feed/Photo";
 import PageTitle from "../components/PageTitle";
 import { COMMENT_FRAGMENT, PHOTO_FRAGMENT } from "../fragment";
@@ -25,16 +26,62 @@ gql`
 `;
 
 function Home() {
-  const { data, loading } = useSeeFeedQuery({ variables: { page: 1 } });
+  const [page, setPage] = useState(1);
+  const [target, setTarget] = useState<Element | null>(null);
+
+  const { data, loading, fetchMore } = useSeeFeedQuery({
+    variables: { page: page },
+  });
+
+  const handleObserver = useCallback(
+    ([entry]: any) => {
+      if (entry.isIntersecting) {
+        setPage(page + 1);
+        fetchMore({ variables: { page: page + 1 } });
+      }
+    },
+    [page]
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.6,
+    });
+    target && observer.observe(target);
+    return () => {
+      if (target) {
+        observer.disconnect();
+      }
+    };
+  }, [target]);
+
   return (
     <div>
       <PageTitle title={loading ? "Loading..." : "Home"} />
       {data?.seeFeed?.map(
-        (photo) => photo && <Photo key={photo?.id} {...photo} />
+        (photo, i) =>
+          photo && (
+            <div ref={i + 1 !== data?.seeFeed?.length ? null : setTarget}>
+              <Photo key={i} {...photo} />
+            </div>
+          )
       )}
     </div>
   );
 }
+
+// {list.map((item, i) => {
+//   const isLastElement = books.length === i + 1;
+//   isLastElement ? (
+//     <div key={i} ref={lastBookElementRef}>
+//     {book}
+//     </div>
+//   ) : (
+//   <div key={i}>{book}</div>
+//   )
+// })}
 
 // Font Awesome supports t-shirt size scale from 2xs to 2xl as well as literal sizing from 1x to 10x.
 

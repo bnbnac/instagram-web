@@ -51,6 +51,16 @@ export const client = new ApolloClient({
       User: {
         keyFields: (obj) => `User:${obj.username}`,
       },
+      Query: {
+        fields: {
+          seeFeed: {
+            keyArgs: false,
+            merge(existing = [], incoming = []) {
+              return [...existing, ...incoming];
+            },
+          },
+        },
+      },
     },
   }),
   link: authLink.concat(httpLink),
