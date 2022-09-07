@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import {
   faBookmark,
   faComment,
@@ -7,12 +7,16 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as SolidHeart } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useToggleLikeMutation } from "../../generated/graphql";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
 import Comments from "./Comments";
+import Modal from "react-modal";
+import UserRow from "./UserRow";
+import { USER_FRAGMENT } from "../../fragment";
 
 const PhotoContainer = styled.div`
   background-color: white;
@@ -58,6 +62,7 @@ const PhotoAction = styled.div`
 const Likes = styled(FatText)`
   margin-top: 10px;
   display: block;
+  cursor: pointer;
 `;
 
 gql`
@@ -67,6 +72,15 @@ gql`
       error
     }
   }
+`;
+
+const LIKES_QUERY = gql`
+  query seePhotoLikes($id: Int!) {
+    seePhotoLikes(id: $id) {
+      ...UserFragment
+    }
+  }
+  ${USER_FRAGMENT}
 `;
 
 // interface IComment {
@@ -111,6 +125,8 @@ function Photo({
   comments,
   user,
 }: IPhoto) {
+  const [isOpen, setIsOpen] = useState(false);
+
   const updateToggleLike = (cache: any, result: any) => {
     const {
       data: {
@@ -146,6 +162,10 @@ function Photo({
     update: updateToggleLike,
   });
 
+  const { data: photiLikesData, loading } = useQuery(LIKES_QUERY, {
+    variables: { id },
+  });
+
   return (
     <PhotoContainer key={id}>
       <PhotoHeader>
@@ -178,9 +198,48 @@ function Photo({
             <FontAwesomeIcon size={"2x"} icon={faBookmark} />
           </div>
         </PhotoActions>
-        <Likes onClick={() => {}}>
+        <Likes
+          onClick={() => {
+            setIsOpen(true);
+          }}
+        >
           {likes === 1 ? "1 like" : `${likes} likes`}
         </Likes>
+        <Modal
+          style={{
+            overlay: {
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(255, 255, 255, 0.75)",
+            },
+            content: {
+              position: "absolute",
+              width: "30rem",
+              height: "30rem",
+              left: "30rem",
+              top: "20%",
+              justifyContent: "center",
+              alignItems: "center",
+              // border: "1px solid #ccc",
+              // background: "#fff",
+              overflow: "auto",
+              WebkitOverflowScrolling: "touch",
+              borderRadius: "4px",
+              outline: "none",
+              padding: "20px",
+            },
+          }}
+          isOpen={isOpen}
+          onRequestClose={() => setIsOpen(false)}
+          contentLabel="Likes Modal"
+        >
+          {photiLikesData?.seePhotoLikes?.map((user: any, i: any) => (
+            <UserRow key={i} user={user} />
+          ))}
+        </Modal>
         <Comments
           id={id}
           user={user}
