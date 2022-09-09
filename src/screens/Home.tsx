@@ -63,8 +63,11 @@ function Home() {
       {data?.seeFeed?.map(
         (photo, i) =>
           photo && (
-            <div ref={i + 1 !== data?.seeFeed?.length ? null : setTarget}>
-              <Photo key={i} {...photo} />
+            <div
+              key={i}
+              ref={i + 1 !== data?.seeFeed?.length ? null : setTarget}
+            >
+              <Photo {...photo} />
             </div>
           )
       )}

@@ -19,7 +19,7 @@ import UserRow from "./UserRow";
 import { USER_FRAGMENT } from "../../fragment";
 
 const PhotoContainer = styled.div`
-  background-color: white;
+  background-color: ${(props) => props.theme.bgColor};
   border: 1px solid ${(props) => props.theme.borderColor};
   margin-bottom: 20px;
   max-width: 615px;
@@ -213,7 +213,7 @@ function Photo({
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.75)",
+              backgroundColor: "rgba(255, 255, 255, 0.55)",
             },
             content: {
               position: "absolute",
@@ -225,6 +225,7 @@ function Photo({
               alignItems: "center",
               // border: "1px solid #ccc",
               // background: "#fff",
+              color: "black",
               overflow: "auto",
               WebkitOverflowScrolling: "touch",
               borderRadius: "4px",

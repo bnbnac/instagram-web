@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import React from "react";
 import { gql } from "@apollo/client";
 import { useDeleteCommentMutation } from "../../generated/graphql";
+import useUser from "../../hooks/useUser";
 
 const CommentArea = styled.div``;
 
@@ -79,7 +80,7 @@ function Comment({ photoId, comment }: IComment) {
         {payload?.split(" ").map((word, index) =>
           /#[[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/g.test(word) ? (
             <React.Fragment key={index}>
-              <Link to={`/hashtags/${word}`}>{word} </Link>
+              <Link to={`/tags/${word.replace("#", "")}`}>{word} </Link>
             </React.Fragment>
           ) : /@[[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/g.test(word) ? (
             <React.Fragment key={index}>

@@ -3,11 +3,8 @@ import styled from "styled-components";
 import {
   useFollowUserMutation,
   useMeQuery,
-  useSeeProfileQuery,
   useUnfollowUserMutation,
 } from "../../generated/graphql";
-import useUser from "../../hooks/useUser";
-import routes from "../../routes";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
 

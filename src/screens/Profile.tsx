@@ -14,10 +14,10 @@ import {
 } from "../generated/graphql";
 import useUser from "../hooks/useUser";
 
-const Header = styled.div`
+export const Header = styled.div`
   display: flex;
 `;
-const Avatar = styled.img`
+export const Avatar = styled.img`
   margin-left: 50px;
   height: 160px;
   width: 160px;
@@ -25,30 +25,30 @@ const Avatar = styled.img`
   margin-right: 150px;
   background-color: #2c2c2c;
 `;
-const Column = styled.div``;
-const Username = styled.h3`
+export const Column = styled.div``;
+export const Username = styled.h3`
   font-size: 28px;
   font-weight: 400;
 `;
-const Row = styled.div`
+export const Row = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
   display: flex;
 `;
-const List = styled.ul`
+export const List = styled.ul`
   display: flex;
 `;
-const Item = styled.li`
+export const Item = styled.li`
   margin-right: 20px;
 `;
-const Value = styled(FatText)`
+export const Value = styled(FatText)`
   font-size: 18px;
 `;
-const Name = styled(FatText)`
+export const Name = styled(FatText)`
   font-size: 20px;
 `;
 
-const Grid = styled.div`
+export const Grid = styled.div`
   display: grid;
   grid-auto-rows: 290px;
   grid-template-columns: repeat(3, 1fr);
@@ -56,13 +56,13 @@ const Grid = styled.div`
   margin-top: 50px;
 `;
 
-const Photo = styled.div<{ bg: any }>`
+export const Photo = styled.div<{ bg: any }>`
   background-image: url(${(props) => props.bg});
   background-size: cover;
   position: relative;
 `;
 
-const Icons = styled.div`
+export const Icons = styled.div`
   position: absolute;
   display: flex;
   justify-content: center;
@@ -77,7 +77,7 @@ const Icons = styled.div`
   }
 `;
 
-const Icon = styled.span`
+export const Icon = styled.span`
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -88,7 +88,7 @@ const Icon = styled.span`
   }
 `;
 
-const ProfileBtn = styled(Button).attrs({
+export const ProfileBtn = styled(Button).attrs({
   as: "span",
 })`
   margin-left: 10px;

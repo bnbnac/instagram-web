@@ -10,7 +10,7 @@ export const lightTheme = {
 
 export const darkTheme = {
   accent: "#0095f6",
-  borderColor: "rgb(219, 219, 219)",
+  borderColor: "rgb(190, 190, 190)",
   bgColor: "#2c2c2c",
   fontColor: "white",
 };

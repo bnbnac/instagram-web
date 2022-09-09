@@ -5,6 +5,7 @@ import { ThemeProvider } from "styled-components";
 import { client, darkModeVar, isLoggedInVar } from "./apollo";
 import Layout from "./components/auth/Layout";
 import routes from "./routes";
+import Hashtag from "./screens/Hashtag";
 import Home from "./screens/Home";
 import Login from "./screens/Login";
 import NotFound from "./screens/NotFound";
@@ -42,6 +43,14 @@ function App() {
                 element={
                   <Layout>
                     <Profile />
+                  </Layout>
+                }
+              />
+              <Route
+                path={`/tags/:hashtag`}
+                element={
+                  <Layout>
+                    <Hashtag />
                   </Layout>
                 }
               />

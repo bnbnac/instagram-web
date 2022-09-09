@@ -362,14 +362,31 @@ export type ToggleLikeMutationVariables = Exact<{
 
 export type ToggleLikeMutation = { __typename?: 'Mutation', toggleLike: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
+export type SeePhotoLikesQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type SeePhotoLikesQuery = { __typename?: 'Query', seePhotoLikes?: Array<{ __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean } | null> | null };
+
 export type PhotoFragmentFragment = { __typename?: 'Photo', id: number, file: string, likes: number, commentsNumber: number, isLiked: boolean };
 
 export type CommentFragmentFragment = { __typename?: 'Comment', id: number, payload: string, isMine: boolean, createdAt: string, user: { __typename?: 'User', username: string, avatar?: string | null } };
+
+export type UserFragmentFragment = { __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, avatar?: string | null } | null };
+
+export type SeeHashtagQueryVariables = Exact<{
+  hashtag: Scalars['String'];
+  page: Scalars['Int'];
+}>;
+
+
+export type SeeHashtagQuery = { __typename?: 'Query', seeHashtag?: { __typename?: 'Hashtag', totalPhotos: number, updatedAt: string, photos?: Array<{ __typename?: 'Photo', file: string, likes: number, commentsNumber: number } | null> | null } | null };
 
 export type SeeFeedQueryVariables = Exact<{
   page: Scalars['Int'];
@@ -450,6 +467,14 @@ export const CommentFragmentFragmentDoc = gql`
   payload
   isMine
   createdAt
+}
+    `;
+export const UserFragmentFragmentDoc = gql`
+    fragment UserFragment on User {
+  username
+  avatar
+  isFollowing
+  isMe
 }
     `;
 export const DeleteCommentDocument = gql`
@@ -555,6 +580,41 @@ export function useToggleLikeMutation(baseOptions?: Apollo.MutationHookOptions<T
 export type ToggleLikeMutationHookResult = ReturnType<typeof useToggleLikeMutation>;
 export type ToggleLikeMutationResult = Apollo.MutationResult<ToggleLikeMutation>;
 export type ToggleLikeMutationOptions = Apollo.BaseMutationOptions<ToggleLikeMutation, ToggleLikeMutationVariables>;
+export const SeePhotoLikesDocument = gql`
+    query seePhotoLikes($id: Int!) {
+  seePhotoLikes(id: $id) {
+    ...UserFragment
+  }
+}
+    ${UserFragmentFragmentDoc}`;
+
+/**
+ * __useSeePhotoLikesQuery__
+ *
+ * To run a query within a React component, call `useSeePhotoLikesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeePhotoLikesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeePhotoLikesQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSeePhotoLikesQuery(baseOptions: Apollo.QueryHookOptions<SeePhotoLikesQuery, SeePhotoLikesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SeePhotoLikesQuery, SeePhotoLikesQueryVariables>(SeePhotoLikesDocument, options);
+      }
+export function useSeePhotoLikesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeePhotoLikesQuery, SeePhotoLikesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SeePhotoLikesQuery, SeePhotoLikesQueryVariables>(SeePhotoLikesDocument, options);
+        }
+export type SeePhotoLikesQueryHookResult = ReturnType<typeof useSeePhotoLikesQuery>;
+export type SeePhotoLikesLazyQueryHookResult = ReturnType<typeof useSeePhotoLikesLazyQuery>;
+export type SeePhotoLikesQueryResult = Apollo.QueryResult<SeePhotoLikesQuery, SeePhotoLikesQueryVariables>;
 export const MeDocument = gql`
     query me {
   me {
@@ -591,6 +651,48 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const SeeHashtagDocument = gql`
+    query seeHashtag($hashtag: String!, $page: Int!) {
+  seeHashtag(hashtag: $hashtag) {
+    totalPhotos
+    photos(page: $page) {
+      file
+      likes
+      commentsNumber
+    }
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useSeeHashtagQuery__
+ *
+ * To run a query within a React component, call `useSeeHashtagQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeHashtagQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeeHashtagQuery({
+ *   variables: {
+ *      hashtag: // value for 'hashtag'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useSeeHashtagQuery(baseOptions: Apollo.QueryHookOptions<SeeHashtagQuery, SeeHashtagQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SeeHashtagQuery, SeeHashtagQueryVariables>(SeeHashtagDocument, options);
+      }
+export function useSeeHashtagLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeHashtagQuery, SeeHashtagQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SeeHashtagQuery, SeeHashtagQueryVariables>(SeeHashtagDocument, options);
+        }
+export type SeeHashtagQueryHookResult = ReturnType<typeof useSeeHashtagQuery>;
+export type SeeHashtagLazyQueryHookResult = ReturnType<typeof useSeeHashtagLazyQuery>;
+export type SeeHashtagQueryResult = Apollo.QueryResult<SeeHashtagQuery, SeeHashtagQueryVariables>;
 export const SeeFeedDocument = gql`
     query seeFeed($page: Int!) {
   seeFeed(page: $page) {
