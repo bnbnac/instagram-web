@@ -338,6 +338,14 @@ export type SeeFollowingResult = {
   ok: Scalars['Boolean'];
 };
 
+export type UploadPhotoMutationVariables = Exact<{
+  file: Scalars['Upload'];
+  caption?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type UploadPhotoMutation = { __typename?: 'Mutation', uploadPhoto?: { __typename?: 'Photo', caption?: string | null, createdAt: string, isMine: boolean, id: number, file: string, likes: number, commentsNumber: number, isLiked: boolean, user: { __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean } } | null };
+
 export type DeleteCommentMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -374,6 +382,8 @@ export type PhotoFragmentFragment = { __typename?: 'Photo', id: number, file: st
 export type CommentFragmentFragment = { __typename?: 'Comment', id: number, payload: string, isMine: boolean, createdAt: string, user: { __typename?: 'User', username: string, avatar?: string | null } };
 
 export type UserFragmentFragment = { __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean };
+
+export type FeedPhotoFragmentFragment = { __typename?: 'Photo', caption?: string | null, createdAt: string, isMine: boolean, id: number, file: string, likes: number, commentsNumber: number, isLiked: boolean, user: { __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -448,15 +458,6 @@ export const WriteCommentFragmentDoc = gql`
   }
 }
     `;
-export const PhotoFragmentFragmentDoc = gql`
-    fragment PhotoFragment on Photo {
-  id
-  file
-  likes
-  commentsNumber
-  isLiked
-}
-    `;
 export const CommentFragmentFragmentDoc = gql`
     fragment CommentFragment on Comment {
   id
@@ -469,6 +470,15 @@ export const CommentFragmentFragmentDoc = gql`
   createdAt
 }
     `;
+export const PhotoFragmentFragmentDoc = gql`
+    fragment PhotoFragment on Photo {
+  id
+  file
+  likes
+  commentsNumber
+  isLiked
+}
+    `;
 export const UserFragmentFragmentDoc = gql`
     fragment UserFragment on User {
   username
@@ -477,6 +487,52 @@ export const UserFragmentFragmentDoc = gql`
   isMe
 }
     `;
+export const FeedPhotoFragmentFragmentDoc = gql`
+    fragment FeedPhotoFragment on Photo {
+  ...PhotoFragment
+  user {
+    ...UserFragment
+  }
+  caption
+  createdAt
+  isMine
+}
+    ${PhotoFragmentFragmentDoc}
+${UserFragmentFragmentDoc}`;
+export const UploadPhotoDocument = gql`
+    mutation uploadPhoto($file: Upload!, $caption: String) {
+  uploadPhoto(file: $file, caption: $caption) {
+    ...FeedPhotoFragment
+  }
+}
+    ${FeedPhotoFragmentFragmentDoc}`;
+export type UploadPhotoMutationFn = Apollo.MutationFunction<UploadPhotoMutation, UploadPhotoMutationVariables>;
+
+/**
+ * __useUploadPhotoMutation__
+ *
+ * To run a mutation, you first call `useUploadPhotoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUploadPhotoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [uploadPhotoMutation, { data, loading, error }] = useUploadPhotoMutation({
+ *   variables: {
+ *      file: // value for 'file'
+ *      caption: // value for 'caption'
+ *   },
+ * });
+ */
+export function useUploadPhotoMutation(baseOptions?: Apollo.MutationHookOptions<UploadPhotoMutation, UploadPhotoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UploadPhotoMutation, UploadPhotoMutationVariables>(UploadPhotoDocument, options);
+      }
+export type UploadPhotoMutationHookResult = ReturnType<typeof useUploadPhotoMutation>;
+export type UploadPhotoMutationResult = Apollo.MutationResult<UploadPhotoMutation>;
+export type UploadPhotoMutationOptions = Apollo.BaseMutationOptions<UploadPhotoMutation, UploadPhotoMutationVariables>;
 export const DeleteCommentDocument = gql`
     mutation deleteComment($id: Int!) {
   deleteComment(id: $id) {

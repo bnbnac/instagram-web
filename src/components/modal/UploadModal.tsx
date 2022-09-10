@@ -3,30 +3,14 @@ import { useState } from "react";
 import Modal from "react-modal";
 import { USER_FRAGMENT } from "../../fragment";
 import UserRow from "../feed/UserRow";
+import UploadPhoto from "../UploadPhoto";
 
-interface ILikesModal {
-  photoId: number;
+interface IUploadModal {
   isOpen: boolean;
   setIsOpenFalse: any;
 }
 
-const LIKES_QUERY = gql`
-  query seePhotoLikes($id: Int!) {
-    seePhotoLikes(id: $id) {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
-
-export default function LikesModal({
-  isOpen,
-  setIsOpenFalse,
-  photoId,
-}: ILikesModal) {
-  const { data: photoLikesData, loading } = useQuery(LIKES_QUERY, {
-    variables: { id: photoId },
-  });
+export default function UploadModal({ isOpen, setIsOpenFalse }: IUploadModal) {
   return (
     <Modal
       style={{
@@ -43,8 +27,8 @@ export default function LikesModal({
           flex: 1,
           left: "30%",
           right: "30%",
-          top: "20%",
-          bottom: "20%",
+          top: "15%",
+          bottom: "15%",
           justifyContent: "center",
           alignItems: "center",
           color: "black",
@@ -57,11 +41,9 @@ export default function LikesModal({
       }}
       isOpen={isOpen}
       onRequestClose={setIsOpenFalse}
-      contentLabel="Likes Modal"
+      contentLabel="Upload Modal"
     >
-      {photoLikesData?.seePhotoLikes?.map((user: any, i: any) => (
-        <UserRow key={i} user={user} />
-      ))}
+      <UploadPhoto />
     </Modal>
   );
 }

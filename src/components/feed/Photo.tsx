@@ -17,6 +17,7 @@ import Comments from "./Comments";
 import Modal from "react-modal";
 import UserRow from "./UserRow";
 import { USER_FRAGMENT } from "../../fragment";
+import LikesModal from "../modal/LikesModal";
 
 const PhotoContainer = styled.div`
   background-color: ${(props) => props.theme.bgColor};
@@ -74,15 +75,6 @@ gql`
   }
 `;
 
-const LIKES_QUERY = gql`
-  query seePhotoLikes($id: Int!) {
-    seePhotoLikes(id: $id) {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
-
 // interface IComment {
 //   id: number;
 //   user: {
@@ -126,7 +118,7 @@ function Photo({
   user,
 }: IPhoto) {
   const [isOpen, setIsOpen] = useState(false);
-
+  const setIsOpenFalse = () => setIsOpen(false);
   const updateToggleLike = (cache: any, result: any) => {
     const {
       data: {
@@ -160,10 +152,6 @@ function Photo({
       id,
     },
     update: updateToggleLike,
-  });
-
-  const { data: photiLikesData, loading } = useQuery(LIKES_QUERY, {
-    variables: { id },
   });
 
   return (
@@ -205,42 +193,11 @@ function Photo({
         >
           {likes === 1 ? "1 like" : `${likes} likes`}
         </Likes>
-        <Modal
-          style={{
-            overlay: {
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.55)",
-            },
-            content: {
-              position: "absolute",
-              width: "30rem",
-              height: "30rem",
-              left: "30rem",
-              top: "20%",
-              justifyContent: "center",
-              alignItems: "center",
-              // border: "1px solid #ccc",
-              // background: "#fff",
-              color: "black",
-              overflow: "auto",
-              WebkitOverflowScrolling: "touch",
-              borderRadius: "4px",
-              outline: "none",
-              padding: "20px",
-            },
-          }}
+        <LikesModal
           isOpen={isOpen}
-          onRequestClose={() => setIsOpen(false)}
-          contentLabel="Likes Modal"
-        >
-          {photiLikesData?.seePhotoLikes?.map((user: any, i: any) => (
-            <UserRow key={i} user={user} />
-          ))}
-        </Modal>
+          setIsOpenFalse={setIsOpenFalse}
+          photoId={id}
+        />
         <Comments
           id={id}
           user={user}

@@ -19,6 +19,9 @@ const CommentCaption = styled.span`
     }
   }
 `;
+const XButton = styled.button`
+  font-size: 8px;
+`;
 
 interface IComment {
   comment: {
@@ -91,7 +94,7 @@ function Comment({ photoId, comment }: IComment) {
           )
         )}
       </CommentCaption>
-      {isMine ? <button onClick={onDeleteClick}>X</button> : null}
+      {isMine ? <XButton onClick={onDeleteClick}>X</XButton> : null}
     </CommentArea>
   );
 }

@@ -3,12 +3,14 @@ import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { faCompass, faPlusSquare } from "@fortawesome/free-regular-svg-icons";
 import { faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { isLoggedInVar } from "../apollo";
 import useUser from "../hooks/useUser";
 import routes from "../routes";
 import Avatar from "./Avatar";
+import UploadModal from "./modal/UploadModal";
 import SearchBar from "./SearchBar";
 
 const SHeader = styled.header`
@@ -50,6 +52,8 @@ const IconsContainer = styled.div`
 
 function Header() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
+  const [isOpen, setIsOpen] = useState(false);
+  const setIsOpenFalse = () => setIsOpen(false);
   const { data: myData } = useUser();
 
   return (
@@ -70,7 +74,14 @@ function Header() {
                 </Link>
               </Icon>
               <Icon>
-                <FontAwesomeIcon icon={faPlusSquare} size="lg" />
+                <FontAwesomeIcon
+                  cursor={"pointer"}
+                  onClick={() => {
+                    setIsOpen(true);
+                  }}
+                  icon={faPlusSquare}
+                  size="lg"
+                />
               </Icon>
               <Icon>
                 <FontAwesomeIcon icon={faCompass} size="lg" />
@@ -88,6 +99,7 @@ function Header() {
           )}
         </Column>
       </Wrapper>
+      <UploadModal isOpen={isOpen} setIsOpenFalse={setIsOpenFalse} />
     </SHeader>
   );
 }

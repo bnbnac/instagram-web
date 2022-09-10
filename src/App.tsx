@@ -1,5 +1,6 @@
 import { ApolloProvider, useReactiveVar } from "@apollo/client";
 import { HelmetProvider } from "react-helmet-async";
+import Modal from "react-modal";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { client, darkModeVar, isLoggedInVar } from "./apollo";
@@ -12,6 +13,8 @@ import NotFound from "./screens/NotFound";
 import Profile from "./screens/Profile";
 import SignUp from "./screens/SignUp";
 import { darkTheme, GlobalStyles, lightTheme } from "./styles";
+
+Modal.setAppElement("#root");
 
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
