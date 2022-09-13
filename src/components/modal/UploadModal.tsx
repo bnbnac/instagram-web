@@ -1,8 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
-import { useState } from "react";
 import Modal from "react-modal";
-import { USER_FRAGMENT } from "../../fragment";
-import UserRow from "../feed/UserRow";
 import UploadPhoto from "../UploadPhoto";
 
 interface IUploadModal {
@@ -43,7 +39,7 @@ export default function UploadModal({ isOpen, setIsOpenFalse }: IUploadModal) {
       onRequestClose={setIsOpenFalse}
       contentLabel="Upload Modal"
     >
-      <UploadPhoto />
+      <UploadPhoto setIsOpenFalse={setIsOpenFalse} />
     </Modal>
   );
 }

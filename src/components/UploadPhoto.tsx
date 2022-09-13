@@ -1,7 +1,6 @@
 import { gql } from "@apollo/client";
-import { useRef } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { start } from "repl";
 import styled from "styled-components";
 import { FEED_PHOTO_FRAGMENT } from "../fragment";
 import { useUploadPhotoMutation } from "../generated/graphql";
@@ -34,22 +33,48 @@ gql`
   ${FEED_PHOTO_FRAGMENT}
 `;
 
-export default function UploadPhoto() {
+export default function UploadPhoto({ setIsOpenFalse }: any) {
+  const [path, setPath] = useState("");
   const { register, handleSubmit, getValues } = useForm();
-  const [uploadPhotoMutation, { loading, error }] = useUploadPhotoMutation();
+  const [uploadPhotoMutation, { loading }] = useUploadPhotoMutation();
+
+  const uploadPhotoUpdate = (cache: any, result: any) => {
+    console.log(result);
+    const {
+      data: { uploadPhoto },
+    } = result;
+    if (uploadPhoto.id) {
+      cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          seeFeed(prev: any) {
+            return [uploadPhoto, ...prev];
+          },
+        },
+      });
+      setIsOpenFalse();
+    }
+  };
   const onValid = () => {
-    console.log(loading, error);
     if (loading) {
       return;
     }
     const { caption, file } = getValues();
-    console.log(file.item(0));
     uploadPhotoMutation({
       variables: {
         file: file.item(0),
         caption,
       },
+      update: uploadPhotoUpdate,
     });
+  };
+  const Preview = (e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e: any) {
+      setPath(e.target.result);
+    };
+    reader.readAsDataURL(file);
   };
   return (
     <Container>
@@ -61,10 +86,11 @@ export default function UploadPhoto() {
               type="file"
               name="file"
               accept="image/*"
+              onChange={Preview}
             />
           </Row>
           <Row>
-            <Image src="https://jinstagram-uploads.s3.amazonaws.com/uploads/4-1662725574476-1.jpg" />
+            <Image id="img" src={path} />
           </Row>
         </Column>
         <Column style={{ flex: 0.7 }}>
