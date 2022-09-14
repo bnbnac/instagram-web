@@ -47,13 +47,20 @@ const authLink = setContext((_, { headers }) => {
     },
   };
 });
+
 const uploadHttpLink = createUploadLink({
-  uri: "http://localhost:4000/graphql",
+  uri:
+    process.env.NODE_ENV === "production"
+      ? "https://jinstagram-back.herokuapp.com/graphql"
+      : "http://localhost:4000/graphql",
 });
 const httpLink = authLink.concat(uploadHttpLink);
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "ws://localhost:4000/graphql",
+    url:
+      process.env.NODE_ENV === "production"
+        ? "ws://jinstagram-back.herokuapp.com/graphql"
+        : "ws://localhost:4000/graphql",
     connectionParams: () => ({
       token: localStorage.getItem(TOKEN),
     }),
