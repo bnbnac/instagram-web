@@ -18,20 +18,16 @@ interface IRow {
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   flex: 1;
-  height: 100%;
-  align-items: flex-end;
 `;
-
 const MessageContainer = styled.div`
-  /* display: flex; */
-  /* flex-direction: column-reverse; */
-  align-items: center;
+  display: flex;
+  flex-direction: column-reverse;
   padding: 7px;
   overflow-y: scroll;
+  max-height: 40rem;
 `;
-
 const Avatar = styled.img`
   height: 22px;
   width: 22px;
@@ -39,22 +35,22 @@ const Avatar = styled.img`
   margin: 5px;
 `;
 const Message = styled.div`
-  display: inline-block;
+  display: block;
   color: blue;
   background-color: rgba(255, 255, 255, 0.3);
   border: 0.1px solid blue;
   padding: 5px 10px;
   border-radius: 10px;
   font-size: 16px;
-  flex-direction: row-reverse;
-  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
 `;
 const InputContainer = styled.div`
   width: 95%;
   margin-bottom: 50px;
   margin-top: 25px;
-  flex-direction: row;
-  align-items: center;
 `;
 const MessageInput = styled.input`
   width: 90%;
@@ -64,11 +60,11 @@ const MessageInput = styled.input`
   color: blue;
   margin-right: 10px;
 `;
-
 const Row = styled.div<IRow>`
   display: flex;
-  flex-direction: column;
-  align-items: ${(props) => (props.isMine ? "flex-end" : "flex")};
+  max-width: 100%;
+  flex-direction: ${(props) => (props.isMine ? "row-reverse" : "row")};
+  margin: 3px;
 `;
 
 gql`
@@ -241,9 +237,21 @@ export default function Room({ roomId: id }: any) {
     }
   }, [data, subscribed]);
 
+  const messages = [...(data?.seeRoom?.messages ?? [])];
+  messages.reverse();
   return (
     <Wrapper>
       {loading ? <>loading</> : null}
+      <MessageContainer>
+        {messages?.map((message, i) => (
+          <Row isMine={message?.user.username === myData?.me?.username} key={i}>
+            <Link to={`/users/${message?.user?.username}`}>
+              <Avatar src={message?.user.avatar + ""} />
+            </Link>
+            <Message>{message?.payload}</Message>
+          </Row>
+        ))}
+      </MessageContainer>
       <InputContainer>
         <form onSubmit={handleSubmit(onValid)}>
           <MessageInput
@@ -260,16 +268,6 @@ export default function Room({ roomId: id }: any) {
           />
         </form>
       </InputContainer>
-      <MessageContainer>
-        {data?.seeRoom?.messages?.map((message, i) => (
-          <Row isMine={message?.user.username === myData?.me?.username} key={i}>
-            <Link to={`/users/${message?.user?.username}`}>
-              <Avatar src={message?.user.avatar + ""} />
-            </Link>
-            <Message>{message?.payload}</Message>
-          </Row>
-        ))}
-      </MessageContainer>
     </Wrapper>
   );
 }

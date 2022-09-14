@@ -12,30 +12,23 @@ import useUser from "../hooks/useUser";
 const Container = styled.div`
   background-color: ${(props) => props.theme.bgColor};
   border: 1px solid ${(props) => props.theme.borderColor};
-  height: 50rem;
+  height: 750px;
   display: flex;
 `;
 
 const RoomsContainer = styled.div`
   display: flex;
   flex-grow: 1;
-  align-items: stretch;
-  /* justify-content: center; */
   height: 100%;
 `;
 const ChatsContainer = styled.div`
   display: flex;
-  flex-grow: 3;
-  align-items: flex-end;
-  /* justify-content: space-between; */
-  height: 100%;
+  flex-grow: 2;
 `;
 const Rooms = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   margin: 10px;
-  /* width: 450px; */
 `;
 
 const Row = styled(Link)`
@@ -50,8 +43,6 @@ const Row = styled(Link)`
 `;
 
 const Chats = styled.div`
-  display: flex;
-  align-items: center;
   margin: 10px;
   width: 100%;
   height: 95%;
@@ -87,9 +78,6 @@ export default function Direct() {
           )}
         </Rooms>
       </RoomsContainer>
-      {/* dividing interval */}
-      {/* dividing interval */}
-      {/* dividing interval */}
       <ChatsContainer>
         <Chats>
           {roomId === "main" ? (
