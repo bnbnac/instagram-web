@@ -3,9 +3,13 @@ import {
   createHttpLink,
   InMemoryCache,
   makeVar,
+  split,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { createUploadLink } from "apollo-upload-client";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
+import { getMainDefinition } from "@apollo/client/utilities";
 
 const TOKEN = "token";
 const DARK_MODE = "DARK_MODE";
@@ -34,7 +38,6 @@ export const disableDarkMode = () => {
   darkModeVar(false);
 };
 
-const httpLink = createHttpLink({ uri: "http://localhost:4000/graphql" });
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem(TOKEN);
   return {
@@ -47,27 +50,48 @@ const authLink = setContext((_, { headers }) => {
 const uploadHttpLink = createUploadLink({
   uri: "http://localhost:4000/graphql",
 });
+const httpLink = authLink.concat(uploadHttpLink);
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: "ws://localhost:4000/graphql",
+    connectionParams: () => ({
+      token: localStorage.getItem(TOKEN),
+    }),
+  })
+);
 
-export const client = new ApolloClient({
-  cache: new InMemoryCache({
-    typePolicies: {
-      // typename?
-      User: {
-        keyFields: (obj) => `User:${obj.username}`,
-      },
-      Query: {
-        fields: {
-          seeFeed: {
-            keyArgs: false,
-            merge(existing = [], incoming = []) {
-              return [...existing, ...incoming];
-            },
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
+const cache = new InMemoryCache({
+  typePolicies: {
+    User: {
+      keyFields: (obj) => `User:${obj.username}`,
+    },
+    Query: {
+      fields: {
+        seeFeed: {
+          keyArgs: false,
+          merge(existing = [], incoming = []) {
+            return [...existing, ...incoming];
           },
         },
       },
     },
-  }),
-  link: authLink.concat(uploadHttpLink),
-  // link: authLink.concat(httpLink),
+  },
+});
+
+export const client = new ApolloClient({
+  cache,
+  link: splitLink,
   connectToDevTools: true,
 });

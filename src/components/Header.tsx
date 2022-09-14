@@ -1,7 +1,11 @@
 import { gql, useReactiveVar } from "@apollo/client";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faCompass, faPlusSquare } from "@fortawesome/free-regular-svg-icons";
-import { faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCompass,
+  faPlusSquare,
+  faPaperPlane,
+} from "@fortawesome/free-regular-svg-icons";
+import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -71,6 +75,11 @@ function Header() {
               <Icon>
                 <Link to={routes.Home}>
                   <FontAwesomeIcon icon={faHome} size="lg" />
+                </Link>
+              </Icon>
+              <Icon>
+                <Link to={`/direct/main`}>
+                  <FontAwesomeIcon icon={faPaperPlane} size="lg" />
                 </Link>
               </Icon>
               <Icon>

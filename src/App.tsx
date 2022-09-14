@@ -6,6 +6,7 @@ import { ThemeProvider } from "styled-components";
 import { client, darkModeVar, isLoggedInVar } from "./apollo";
 import Layout from "./components/auth/Layout";
 import routes from "./routes";
+import Direct from "./screens/Direct";
 import Hashtag from "./screens/Hashtag";
 import Home from "./screens/Home";
 import Login from "./screens/Login";
@@ -42,7 +43,7 @@ function App() {
                 <Route path={routes.SignUp} element={<SignUp />} />
               )}
               <Route
-                path={`/users/:username`}
+                path={routes.Profile}
                 element={
                   <Layout>
                     <Profile />
@@ -50,10 +51,18 @@ function App() {
                 }
               />
               <Route
-                path={`/tags/:hashtag`}
+                path={routes.Hashtag}
                 element={
                   <Layout>
                     <Hashtag />
+                  </Layout>
+                }
+              />
+              <Route
+                path={routes.Direct}
+                element={
+                  <Layout>
+                    <Direct />
                   </Layout>
                 }
               />

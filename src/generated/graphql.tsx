@@ -377,6 +377,31 @@ export type SeePhotoLikesQueryVariables = Exact<{
 
 export type SeePhotoLikesQuery = { __typename?: 'Query', seePhotoLikes?: Array<{ __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean } | null> | null };
 
+export type SeeRoomQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type SeeRoomQuery = { __typename?: 'Query', seeRoom?: { __typename?: 'Room', id: number, messages?: Array<{ __typename?: 'Message', id: number, payload: string, read: boolean, user: { __typename?: 'User', username: string, avatar?: string | null } } | null> | null } | null };
+
+export type SendMessageMutationVariables = Exact<{
+  payload: Scalars['String'];
+  roomId?: InputMaybe<Scalars['Int']>;
+  userId?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'MutationResponse', id?: number | null, ok: boolean } };
+
+export type RoomUpdatesSubscriptionVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type RoomUpdatesSubscription = { __typename?: 'Subscription', roomUpdates?: { __typename?: 'Message', id: number, payload: string, read: boolean, user: { __typename?: 'User', id: number, avatar?: string | null, username: string } } | null };
+
+export type NewMessageFragment = { __typename?: 'Message', id: number, payload: string, read: boolean, user: { __typename?: 'User', id: number, username: string, avatar?: string | null } };
+
 export type PhotoFragmentFragment = { __typename?: 'Photo', id: number, file: string, likes: number, commentsNumber: number, isLiked: boolean };
 
 export type CommentFragmentFragment = { __typename?: 'Comment', id: number, payload: string, isMine: boolean, createdAt: string, user: { __typename?: 'User', username: string, avatar?: string | null } };
@@ -385,10 +410,17 @@ export type UserFragmentFragment = { __typename?: 'User', username: string, avat
 
 export type FeedPhotoFragmentFragment = { __typename?: 'Photo', caption?: string | null, createdAt: string, isMine: boolean, id: number, file: string, likes: number, commentsNumber: number, isLiked: boolean, user: { __typename?: 'User', username: string, avatar?: string | null, isFollowing: boolean, isMe: boolean } };
 
+export type RoomPartsFragment = { __typename?: 'Room', id: number, unreadTotal: number, users?: Array<{ __typename?: 'User', id: number, avatar?: string | null, username: string } | null> | null };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, avatar?: string | null } | null };
+
+export type SeeRoomsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SeeRoomsQuery = { __typename?: 'Query', seeRooms?: Array<{ __typename?: 'Room', id: number, unreadTotal: number, users?: Array<{ __typename?: 'User', id: number, avatar?: string | null, username: string } | null> | null } | null> | null };
 
 export type SeeHashtagQueryVariables = Exact<{
   hashtag: Scalars['String'];
@@ -458,6 +490,18 @@ export const WriteCommentFragmentDoc = gql`
   }
 }
     `;
+export const NewMessageFragmentDoc = gql`
+    fragment NewMessage on Message {
+  id
+  payload
+  user {
+    id
+    username
+    avatar
+  }
+  read
+}
+    `;
 export const CommentFragmentFragmentDoc = gql`
     fragment CommentFragment on Comment {
   id
@@ -499,6 +543,17 @@ export const FeedPhotoFragmentFragmentDoc = gql`
 }
     ${PhotoFragmentFragmentDoc}
 ${UserFragmentFragmentDoc}`;
+export const RoomPartsFragmentDoc = gql`
+    fragment RoomParts on Room {
+  id
+  unreadTotal
+  users {
+    id
+    avatar
+    username
+  }
+}
+    `;
 export const UploadPhotoDocument = gql`
     mutation uploadPhoto($file: Upload!, $caption: String) {
   uploadPhoto(file: $file, caption: $caption) {
@@ -671,6 +726,123 @@ export function useSeePhotoLikesLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type SeePhotoLikesQueryHookResult = ReturnType<typeof useSeePhotoLikesQuery>;
 export type SeePhotoLikesLazyQueryHookResult = ReturnType<typeof useSeePhotoLikesLazyQuery>;
 export type SeePhotoLikesQueryResult = Apollo.QueryResult<SeePhotoLikesQuery, SeePhotoLikesQueryVariables>;
+export const SeeRoomDocument = gql`
+    query seeRoom($id: Int!) {
+  seeRoom(id: $id) {
+    id
+    messages {
+      id
+      payload
+      user {
+        username
+        avatar
+      }
+      read
+    }
+  }
+}
+    `;
+
+/**
+ * __useSeeRoomQuery__
+ *
+ * To run a query within a React component, call `useSeeRoomQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeRoomQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeeRoomQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSeeRoomQuery(baseOptions: Apollo.QueryHookOptions<SeeRoomQuery, SeeRoomQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SeeRoomQuery, SeeRoomQueryVariables>(SeeRoomDocument, options);
+      }
+export function useSeeRoomLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeRoomQuery, SeeRoomQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SeeRoomQuery, SeeRoomQueryVariables>(SeeRoomDocument, options);
+        }
+export type SeeRoomQueryHookResult = ReturnType<typeof useSeeRoomQuery>;
+export type SeeRoomLazyQueryHookResult = ReturnType<typeof useSeeRoomLazyQuery>;
+export type SeeRoomQueryResult = Apollo.QueryResult<SeeRoomQuery, SeeRoomQueryVariables>;
+export const SendMessageDocument = gql`
+    mutation sendMessage($payload: String!, $roomId: Int, $userId: Int) {
+  sendMessage(payload: $payload, roomId: $roomId, userId: $userId) {
+    id
+    ok
+  }
+}
+    `;
+export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation, SendMessageMutationVariables>;
+
+/**
+ * __useSendMessageMutation__
+ *
+ * To run a mutation, you first call `useSendMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendMessageMutation, { data, loading, error }] = useSendMessageMutation({
+ *   variables: {
+ *      payload: // value for 'payload'
+ *      roomId: // value for 'roomId'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendMessageMutation, SendMessageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, options);
+      }
+export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
+export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
+export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
+export const RoomUpdatesDocument = gql`
+    subscription roomUpdates($id: Int!) {
+  roomUpdates(id: $id) {
+    id
+    payload
+    user {
+      id
+      avatar
+      username
+    }
+    read
+  }
+}
+    `;
+
+/**
+ * __useRoomUpdatesSubscription__
+ *
+ * To run a query within a React component, call `useRoomUpdatesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useRoomUpdatesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRoomUpdatesSubscription({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRoomUpdatesSubscription(baseOptions: Apollo.SubscriptionHookOptions<RoomUpdatesSubscription, RoomUpdatesSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<RoomUpdatesSubscription, RoomUpdatesSubscriptionVariables>(RoomUpdatesDocument, options);
+      }
+export type RoomUpdatesSubscriptionHookResult = ReturnType<typeof useRoomUpdatesSubscription>;
+export type RoomUpdatesSubscriptionResult = Apollo.SubscriptionResult<RoomUpdatesSubscription>;
 export const MeDocument = gql`
     query me {
   me {
@@ -707,6 +879,40 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const SeeRoomsDocument = gql`
+    query seeRooms {
+  seeRooms {
+    ...RoomParts
+  }
+}
+    ${RoomPartsFragmentDoc}`;
+
+/**
+ * __useSeeRoomsQuery__
+ *
+ * To run a query within a React component, call `useSeeRoomsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeRoomsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeeRoomsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSeeRoomsQuery(baseOptions?: Apollo.QueryHookOptions<SeeRoomsQuery, SeeRoomsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SeeRoomsQuery, SeeRoomsQueryVariables>(SeeRoomsDocument, options);
+      }
+export function useSeeRoomsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeRoomsQuery, SeeRoomsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SeeRoomsQuery, SeeRoomsQueryVariables>(SeeRoomsDocument, options);
+        }
+export type SeeRoomsQueryHookResult = ReturnType<typeof useSeeRoomsQuery>;
+export type SeeRoomsLazyQueryHookResult = ReturnType<typeof useSeeRoomsLazyQuery>;
+export type SeeRoomsQueryResult = Apollo.QueryResult<SeeRoomsQuery, SeeRoomsQueryVariables>;
 export const SeeHashtagDocument = gql`
     query seeHashtag($hashtag: String!, $page: Int!) {
   seeHashtag(hashtag: $hashtag) {
