@@ -59,7 +59,7 @@ const wsLink = new GraphQLWsLink(
   createClient({
     url:
       process.env.NODE_ENV === "production"
-        ? "ws://jinstagram-back.herokuapp.com/graphql"
+        ? "wss://jinstagram-back.herokuapp.com/graphql"
         : "ws://localhost:4000/graphql",
     connectionParams: () => ({
       token: localStorage.getItem(TOKEN),
