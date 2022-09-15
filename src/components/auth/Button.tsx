@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 const Button = styled.input`
+  cursor: pointer;
   border: none;
   margin-top: 12px;
   background-color: ${(props) => props.theme.accent};

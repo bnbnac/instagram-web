@@ -9,6 +9,9 @@ gql`
       id
       username
       avatar
+      firstName
+      lastName
+      email
     }
   }
 `;

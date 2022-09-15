@@ -3,9 +3,9 @@ import styled from "styled-components";
 import { BaseBox } from "../shared";
 
 interface IBottomBox {
-  cta: string;
+  cta?: string;
   link: string;
-  linktext: string;
+  linktext?: string;
 }
 
 const SBottomBox = styled(BaseBox)`
