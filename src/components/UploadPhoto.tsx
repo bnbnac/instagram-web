@@ -52,6 +52,7 @@ export default function UploadPhoto({ setIsOpenFalse }: any) {
         },
       });
       setIsOpenFalse();
+      window.location.reload();
     }
   };
   const onValid = () => {

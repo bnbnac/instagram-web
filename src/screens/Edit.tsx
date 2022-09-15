@@ -86,9 +86,10 @@ export default function Edit() {
       variables,
     });
 
-    //cache!!!!!!!!!
+    //cache!!!!!!!!! -- other problem?
 
     navigate(`/users/${username}`);
+    window.location.reload();
   };
 
   const [editProfile, { loading }] = useEditProfileMutation({
