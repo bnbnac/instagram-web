@@ -7,6 +7,7 @@ import { client, darkModeVar, isLoggedInVar } from "./apollo";
 import Layout from "./components/auth/Layout";
 import routes from "./routes";
 import Direct from "./screens/Direct";
+import Edit from "./screens/Edit";
 import Hashtag from "./screens/Hashtag";
 import Home from "./screens/Home";
 import Login from "./screens/Login";
@@ -63,6 +64,14 @@ function App() {
                 element={
                   <Layout>
                     <Direct />
+                  </Layout>
+                }
+              />
+              <Route
+                path={routes.Edit}
+                element={
+                  <Layout>
+                    <Edit />
                   </Layout>
                 }
               />

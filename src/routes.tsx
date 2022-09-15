@@ -4,6 +4,7 @@ const routes = {
   Profile: "/users/:username",
   Hashtag: "/tags/:hashtag",
   Direct: "/direct/:roomId",
+  Edit: "/edit",
 };
 
 export default routes;

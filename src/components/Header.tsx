@@ -67,7 +67,10 @@ function Header() {
           <FontAwesomeIcon icon={faInstagram} size="2x" />
         </Column>
         <Column>
-          <SearchBar />
+          <SearchBar
+            placeholder={"search USER with @AnyUsername, TAG with #AnyHashtag"}
+            fromWhere={"Header"}
+          />
         </Column>
         <Column>
           {isLoggedIn ? (

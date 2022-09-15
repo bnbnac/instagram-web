@@ -2,12 +2,12 @@ import { gql } from "@apollo/client";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
+import CreateRoomModal from "../components/modal/CreateRoomModal";
 import PageTitle from "../components/PageTitle";
 import Room from "../components/room/Room";
 import RoomItem from "../components/room/RoomItem";
 import { ROOM_FRAGMENT } from "../fragment";
 import { useSeeRoomsQuery } from "../generated/graphql";
-import useUser from "../hooks/useUser";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.bgColor};
@@ -43,6 +43,9 @@ const Row = styled(Link)`
 `;
 
 const Chats = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 10px;
   width: 100%;
   height: 95%;
@@ -60,12 +63,14 @@ gql`
 `;
 
 export default function Direct() {
-  const { data: myData } = useUser();
   const { roomId } = useParams();
+  const [isOpen, setIsOpen] = useState(false);
+  const setIsOpenFalse = () => setIsOpen(false);
   const { data, loading } = useSeeRoomsQuery();
   return (
     <Container>
       <PageTitle title={loading ? "Loading..." : "Direct"} />
+      <CreateRoomModal isOpen={isOpen} setIsOpenFalse={setIsOpenFalse} />
       <RoomsContainer>
         <Rooms>
           {data?.seeRooms?.map(
@@ -81,9 +86,9 @@ export default function Direct() {
       <ChatsContainer>
         <Chats>
           {roomId === "main" ? (
-            <div>
+            <button onClick={() => setIsOpen(true)}>
               <h1>Make new ChatRoom</h1>
-            </div>
+            </button>
           ) : (
             <Room roomId={roomId} />
           )}

@@ -1,12 +1,10 @@
 import { gql, useApolloClient } from "@apollo/client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import {
   RoomUpdatesDocument,
-  SeeRoomDocument,
   useSeeRoomQuery,
   useSendMessageMutation,
 } from "../../generated/graphql";
@@ -121,7 +119,7 @@ export default function Room({ roomId: id }: any) {
   const updateSendMessage = (cache: any, result: any) => {
     const {
       data: {
-        sendMessage: { ok, id },
+        sendMessage: { id },
       },
     } = result;
     const text = getValues("text");

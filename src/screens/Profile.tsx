@@ -1,7 +1,7 @@
 import { gql, useApolloClient } from "@apollo/client";
 import { faHeart, faComment } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/auth/Button";
 import PageTitle from "../components/PageTitle";
@@ -137,6 +137,7 @@ function Profile() {
   const { username } = useParams();
   const { data: userData } = useUser();
   const client = useApolloClient();
+  const navigate = useNavigate();
 
   const { data, loading } = useSeeProfileQuery({
     variables: {
@@ -218,10 +219,14 @@ function Profile() {
     onCompleted: followUserCompleted,
   });
 
+  const onClick = () => {
+    navigate(`/edit`);
+  };
+
   const getButton = (seeProfile: any) => {
     const { isMe, isFollowing } = seeProfile;
     if (isMe) {
-      return <ProfileBtn>Edit Profile</ProfileBtn>;
+      return <ProfileBtn onClick={onClick}>Edit Profile</ProfileBtn>;
     }
     if (isFollowing) {
       return <ProfileBtn onClick={() => unfollowUser()}>Unfollow</ProfileBtn>;

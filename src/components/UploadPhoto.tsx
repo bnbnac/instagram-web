@@ -39,7 +39,6 @@ export default function UploadPhoto({ setIsOpenFalse }: any) {
   const [uploadPhotoMutation, { loading }] = useUploadPhotoMutation();
 
   const uploadPhotoUpdate = (cache: any, result: any) => {
-    console.log(result);
     const {
       data: { uploadPhoto },
     } = result;
