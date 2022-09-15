@@ -5,12 +5,12 @@ import {
   faPlusSquare,
   faPaperPlane,
 } from "@fortawesome/free-regular-svg-icons";
-import { faHome } from "@fortawesome/free-solid-svg-icons";
+import { faDoorOpen, faHome } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { isLoggedInVar } from "../apollo";
+import { isLoggedInVar, logUserOut } from "../apollo";
 import useUser from "../hooks/useUser";
 import routes from "../routes";
 import Avatar from "./Avatar";
@@ -39,6 +39,7 @@ const Column = styled.div``;
 
 const Icon = styled.span`
   margin-left: 15px;
+  cursor: pointer;
 `;
 
 const Button = styled.span`
@@ -95,8 +96,8 @@ function Header() {
                   size="lg"
                 />
               </Icon>
-              <Icon>
-                <FontAwesomeIcon icon={faCompass} size="lg" />
+              <Icon onClick={() => logUserOut()}>
+                <FontAwesomeIcon icon={faDoorOpen} size="lg" />
               </Icon>
               <Icon>
                 <Link to={`/users/${myData?.me?.username}`}>
