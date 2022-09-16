@@ -52,7 +52,7 @@ export default function UploadPhoto({ setIsOpenFalse }: any) {
         },
       });
       setIsOpenFalse();
-      window.location.reload();
+      window.location.reload(); // 업로드 후 사진 바뀌는 버그 있음
     }
   };
   const onValid = () => {
